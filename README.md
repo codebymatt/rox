@@ -2,7 +2,7 @@
 A Ruby interpreter for the Lox programming language.
 
 I've decided to follow along with the first section of Bob Nystrom's book
-[Crafting Interpreters](https://craftinginterpreters.com/scanning.html) and
+[Crafting Interpreters](https://craftinginterpreters.com) and
 build an interpreter for the Lox programming language. This should serve two
 purposes - providing a scratch for the ever nagging itch I have to understand
 programming languages better, and stratch my Ruby skills beyond the usual Rails
