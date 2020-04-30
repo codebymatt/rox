@@ -2,7 +2,7 @@
 
 # Handles tokens for scanning.
 class Token
-  def new(token_type, lexeme, object_literal, line_num)
+  def initialize(token_type, lexeme, object_literal, line_num)
     @token_type = token_type
     @lexeme = lexeme
     @object_literal = object_literal
@@ -10,6 +10,6 @@ class Token
   end
 
   def to_string
-    "#{@token_type} #{@lexeme} #{@literal}"
+    "#{@token_type} #{@lexeme} #{@object_literal}"
   end
 end

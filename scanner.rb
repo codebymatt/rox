@@ -1,20 +1,15 @@
 # frozen_string_literal: true
 
+require './Token.rb'
+
 # Implements scanning for the interpreter.
 class Scanner
-  attr_accessor :source
-  attr_accessor :tokens
-  attr_accessor :start
-  attr_accessor :current
-  attr_accessor :line_num
-  attr_accessor :keywords
-
-  KEYWORDs = [
+  KEYWORDS = [
     'and', 'class', 'else', 'false', 'for', 'fun', 'if', 'nil',
     'or', 'print', 'return', 'super', 'this', 'true', 'var', 'while'
   ]
 
-  def new(source)
+  def initialize(source)
     @source = source
     @tokens = []
     @start = 0
@@ -25,11 +20,11 @@ class Scanner
 
   def scan_tokens
     until at_end
-      start = current
+      @start = @current
       scan_token
     end
 
-    tokens << Token.new(EOF, '', null, line_num)
+    @tokens << Token.new(:EOF, '', nil, @line_num)
   end
 
   def scan_token
@@ -70,10 +65,10 @@ class Scanner
       else
         add_single_token(:SLASH)
       end
-    when ' ', '\r', '\t'
+    when ' ', "\r", "\t"
       nil
-    when '\n'
-      line_num += 1
+    when "\n"
+      @line_num += 1
     when '"'
       handle_string
     else
@@ -82,7 +77,7 @@ class Scanner
       elsif alpha?(c)
         handle_identifier
       else
-        Rox.error(line_num, 'Unexpected character.')
+        Rox.error(@line_num, 'Unexpected character.')
       end
     end
   end
@@ -90,34 +85,34 @@ class Scanner
   private
 
   def at_end
-    current >= source.length
+    @current >= @source.length
   end
 
   def advance_current
-    current += 1
-    source[current - 1]
+    @current += 1
+    @source[@current - 1]
   end
 
   def add_single_token(token_type)
-    add_token(token_type, null)
+    add_token(token_type, nil)
   end
 
   def add_token(token_type, object_literal)
-    text = source[start...current]
-    tokens << Token.new(token_type, text, object_literal, line_num)
+    text = @source[@start...@current]
+    @tokens << Token.new(token_type, text, object_literal, @line_num)
   end
 
   def next_char_is(expected)
-    return false if at_end || source[current] != expected
+    return false if at_end || @source[@current] != expected
 
-    current += 1
+    @current += 1
     true
   end
 
   def peek
     return '\0' if at_end
 
-    source[current]
+    @source[@current]
   end
 
   def digit?(char)
@@ -128,19 +123,19 @@ class Scanner
     proceed_until_quote_ends
 
     if at_end
-      Rox.error(line_num, 'Unterminated string.')
+      Rox.error(@line_num, 'Unterminated string.')
       return
     end
 
     advance_current
 
-    string_value = source[(start + 1)..current]
+    string_value = @source[(@start + 1)...(@current - 1)]
     add_token(:STRING, string_value)
   end
 
   def proceed_until_quote_ends
     while peek != '"' && !at_end
-      line_num += 1 if peek == '\n'
+      @line_num += 1 if peek == '\n'
       advance_current
     end
   end
@@ -149,7 +144,7 @@ class Scanner
     advance_current while digit?(peek)
 
     capture_decimal_value_if_present
-    add_token(:NUMBER, Float.new(source[start...current]))
+    add_token(:NUMBER, Float(@source[@start...@current]))
   end
 
   def capture_decimal_value_if_present
@@ -160,24 +155,24 @@ class Scanner
   end
 
   def peek_next
-    return '\0' if current + 1 > source.length
+    return '\0' if @current + 1 > @source.length
 
-    source[current + 1]
+    @source[@current + 1]
   end
 
   def handle_identifier
     advance_current while alphanumeric?(peek)
 
-    text = source[start...current]
-    type = keywords[text].nil? ? :IDENTIFIER : keywords[text]
+    text = @source[@start...@current]
+    type = @keywords[text].nil? ? :IDENTIFIER : @keywords[text]
 
     add_single_token(type)
   end
 
   def alpha?(char)
-    (char >= 'a' && c <= 'z') ||
-      (char >= 'A' && c <= 'Z') ||
-      c == '_'
+    (char >= 'a' && char <= 'z') ||
+      (char >= 'A' && char <= 'Z') ||
+      char == '_'
   end
 
   def alphanumeric?(char)
