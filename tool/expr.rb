@@ -11,10 +11,10 @@ class Binary < Expr
     @left = left
     @operator = operator
     @right = right
+  end
 
   def accept(visitor)
     visitor.visitBinaryExpr(self)
-  end
   end
 end
 
@@ -24,10 +24,10 @@ class Grouping < Expr
 
   def initialize(expression)
     @expression = expression
+  end
 
   def accept(visitor)
     visitor.visitGroupingExpr(self)
-  end
   end
 end
 
@@ -37,10 +37,10 @@ class Literal < Expr
 
   def initialize(value)
     @value = value
+  end
 
   def accept(visitor)
     visitor.visitLiteralExpr(self)
-  end
   end
 end
 
@@ -51,10 +51,10 @@ class Unary < Expr
   def initialize(operator, right)
     @operator = operator
     @right = right
+  end
 
   def accept(visitor)
     visitor.visitUnaryExpr(self)
-  end
   end
 end
 

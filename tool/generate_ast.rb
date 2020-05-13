@@ -52,9 +52,7 @@ class GenerateAST
   def define_type(sub_class_name, fields)
     write_class_opening(sub_class_name, fields)
 
-    fields.split(' ')
-          .map { |field| field.gsub(',', '') }
-          .each { |field| write_type(field) }
+    write_initializer(fields)
 
     write_visitor_pattern(sub_class_name)
     write_class_ending
@@ -66,7 +64,15 @@ class GenerateAST
     @output_file.puts("class #{sub_class_name} < #{@base_class_name}")
     @output_file.puts("  attr_accessor #{accessors_from(fields)}")
     @output_file.puts ''
+  end
+
+  def write_initializer(fields)
     @output_file.puts("  def initialize(#{fields})")
+    fields.split(' ')
+          .map { |field| field.gsub(',', '') }
+          .each { |field| write_type(field) }
+
+    @output_file.puts('  end')
   end
 
   def write_type(field)
@@ -83,7 +89,6 @@ class GenerateAST
   end
 
   def write_class_ending
-    @output_file.puts('  end')
     @output_file.puts('end')
     @output_file.puts('')
   end
