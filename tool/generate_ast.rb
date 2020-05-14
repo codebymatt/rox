@@ -81,10 +81,10 @@ class GenerateAST
   end
 
   def write_visitor_pattern(sub_class_name)
-    visitor_target = "#{sub_class_name.capitalize}#{@base_class_name}"
+    visitor_target = "#{sub_class_name.downcase}_#{@base_class_name.downcase}"
     @output_file.puts('')
     @output_file.puts('  def accept(visitor)')
-    @output_file.puts("    visitor.visit#{visitor_target}(self)")
+    @output_file.puts("    visitor.visit_#{visitor_target}(self)")
     @output_file.puts('  end')
   end
 

@@ -2,6 +2,8 @@
 
 # Handles tokens for scanning.
 class Token
+  attr_reader :token_type, :lexeme, :object_literal, :line_num
+
   def initialize(token_type, lexeme, object_literal, line_num)
     @token_type = token_type
     @lexeme = lexeme

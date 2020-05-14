@@ -14,7 +14,7 @@ class Binary < Expr
   end
 
   def accept(visitor)
-    visitor.visitBinaryExpr(self)
+    visitor.visit_binary_expr(self)
   end
 end
 
@@ -27,7 +27,7 @@ class Grouping < Expr
   end
 
   def accept(visitor)
-    visitor.visitGroupingExpr(self)
+    visitor.visit_grouping_expr(self)
   end
 end
 
@@ -40,7 +40,7 @@ class Literal < Expr
   end
 
   def accept(visitor)
-    visitor.visitLiteralExpr(self)
+    visitor.visit_literal_expr(self)
   end
 end
 
@@ -54,7 +54,7 @@ class Unary < Expr
   end
 
   def accept(visitor)
-    visitor.visitUnaryExpr(self)
+    visitor.visit_unary_expr(self)
   end
 end
 
