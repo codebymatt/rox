@@ -97,9 +97,9 @@ class Scanner
     add_token(token_type, nil)
   end
 
-  def add_token(token_type, object_literal)
+  def add_token(token_type, literal)
     text = @source[@start...@current]
-    @tokens << Token.new(token_type, text, object_literal, @line_num)
+    @tokens << Token.new(token_type, text, literal, @line_num)
   end
 
   def next_char_is(expected)

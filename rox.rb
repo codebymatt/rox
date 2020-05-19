@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require './ast_printer.rb'
+require './parser.rb'
 require './scanner.rb'
 
 # Entry point for the Rox interpreter.
@@ -8,6 +10,15 @@ class Rox
   class << self
     def error(line, message)
       report(line, '', message)
+    end
+
+    def parse_error(token, message)
+      if token.type == :EOF
+        report(token.line_num, ' at end', message)
+      else
+        interpolated_string = " at '#{token.lexeme}'"
+        report(token.line_num, interpolated_string, message)
+      end
     end
 
     def report(line, where, message)
@@ -54,9 +65,11 @@ class Rox
   def run(source)
     scanner = Scanner.new(source)
     tokens = scanner.scan_tokens
+    parser = Parser.new(tokens)
+    expression = parser.parse
 
-    tokens.each { |token| puts token.to_string }
+    return if @had_error
+
+    puts AstPrinter.print(expression)
   end
 end
-
-Rox.new(ARGV)
