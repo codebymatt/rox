@@ -22,7 +22,7 @@ class Rox
     end
 
     def runtime_error(error)
-      puts "#{error.message}\n[line #{error.token.line}]"
+      puts "#{error.message}\n[line #{error.token.line_num}]"
       @had_runtime_error = true
     end
 
