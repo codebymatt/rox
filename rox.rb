@@ -1,7 +1,7 @@
-#!/usr/bin/env ruby
 # frozen_string_literal: true
 
 require './ast_printer.rb'
+require './interpreter.rb'
 require './parser.rb'
 require './scanner.rb'
 
@@ -21,6 +21,11 @@ class Rox
       end
     end
 
+    def runtime_error(error)
+      puts "#{error.message}\n[line #{error.token.line}]"
+      @had_runtime_error = true
+    end
+
     def report(line, where, message)
       puts "[line #{line}] Error#{where}: #{message}"
       @had_error = true
@@ -29,6 +34,8 @@ class Rox
 
   def initialize(arguments)
     @had_error = false
+    @had_runtime_error = true
+    @interpreter = Interpreter.new
     main(arguments)
   end
 
@@ -50,6 +57,7 @@ class Rox
 
     run(file_contents)
     exit(65) if @had_error
+    exit(70) if @had_runtime_error
   end
 
   def run_prompt
@@ -70,6 +78,6 @@ class Rox
 
     return if @had_error
 
-    puts AstPrinter.print(expression)
+    @interpreter.interpret(expression)
   end
 end
