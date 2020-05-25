@@ -58,3 +58,15 @@ class Unary < Expr
   end
 end
 
+# Responsible for Variable expression
+class Variable < Expr
+  attr_accessor :name
+
+  def initialize(name)
+    @name = name
+  end
+
+  def accept(visitor)
+    visitor.visit_variable_expr(self)
+  end
+end

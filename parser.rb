@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require './expr.rb'
+require './stmt.rb'
 require './rox.rb'
 
 # Creates AST by recursive descent.
@@ -19,12 +20,49 @@ class Parser
   end
 
   def parse
-    expression
-  rescue ParseError
-    nil
+    statements = []
+
+    statements << declaration until at_end
+
+    statements
   end
 
   private
+
+  def declaration
+    return var_declaration if match(:VAR)
+
+    statement
+  rescue ParseError
+    synchronize
+    nil
+  end
+
+  def statement
+    return print_statement if match(:PRINT)
+
+    expression_statement
+  end
+
+  def print_statement
+    value = expression
+    consume(:SEMICOLON, "Expect ';' after value.")
+    Print.new(value)
+  end
+
+  def var_declaration
+    name = consume(:IDENTIFIER, 'Expect variable name.')
+    initializer = match(:EQUAL) ? expression : nil
+
+    consume(:SEMICOLON, "Expect ';' after variable declaration.")
+    Var.new(name, initializer)
+  end
+
+  def expression_statement
+    expr = expression
+    consume(:SEMICOLON, "Expect ';' after value.")
+    Expression.new(expr)
+  end
 
   def expression
     equality
@@ -93,6 +131,7 @@ class Parser
     return Literal.new(true) if match(:TRUE)
     return Literal.new(nil) if match(:NIL)
     return Literal.new(previous.literal) if match(:NUMBER, :STRING)
+    return Variable.new(previous) if match(:IDENTIFIER)
 
     if match(:LEFT_PAREN)
       expr = expression
@@ -152,7 +191,7 @@ class Parser
     advance
 
     until at_end
-      return if previous.type == SEMICOLON
+      return if previous.type == :SEMICOLON
       return if STATEMENT_STARTING_KEYWORDS.include?(peek_next_token.type)
     end
 

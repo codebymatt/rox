@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
+require './environment.rb'
 require './rox.rb'
 require './runtime_error.rb'
 
 # Interprets the value of syntax leaf nodes.
 class Interpreter
-  def interpret(expression)
-    value = evaluate(expression)
-    puts stringify(value)
+  def initialize
+    @environment = Environment.new
+  end
+
+  def interpret(statements)
+    statements.each { |stmt| execute(stmt) }
   rescue RuntimeError => e
     Rox.runtime_error(e)
   end
@@ -75,10 +79,30 @@ class Interpreter
     end
   end
 
+  def visit_print_stmt(stmt)
+    value = evaluate(stmt.expression)
+    puts stringify(value)
+    nil
+  end
+
+  def visit_var_stmt(stmt)
+    value = stmt.initializer.nil? ? nil : evaluate(stmt.initializer)
+
+    @environment.define(stmt.name.lexeme, value)
+  end
+
+  def visit_variable_expr(expr)
+    @environment.get(expr.name)
+  end
+
   private
 
   def evaluate(expr)
     expr.accept(self)
+  end
+
+  def execute(stmt)
+    stmt.accept(self)
   end
 
   def stringify(object)

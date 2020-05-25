@@ -14,15 +14,25 @@ class GenerateAST
     end
 
     output_directory = @args[0]
-    define_ast(output_directory, 'Expr', expression_type_array)
+    define_ast(output_directory, 'Expr', expression_types)
+    define_ast(output_directory, 'Stmt', statement_types)
   end
 
-  def expression_type_array
+  def expression_types
     [
-      'Binary: left, operator, right',
-      'Grouping: expression',
-      'Literal: value',
-      'Unary: operator, right'
+      'Binary:    left, operator, right',
+      'Grouping:  expression',
+      'Literal:   value',
+      'Unary:     operator, right',
+      'Variable:  name'
+    ]
+  end
+
+  def statement_types
+    [
+      'Expression : expression',
+      'Print      : expression',
+      'Var        : name, initializer'
     ]
   end
 

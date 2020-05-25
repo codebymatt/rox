@@ -34,7 +34,7 @@ class Rox
 
   def initialize(arguments)
     @had_error = false
-    @had_runtime_error = true
+    @had_runtime_error = false
     @interpreter = Interpreter.new
     main(arguments)
   end
@@ -67,6 +67,7 @@ class Rox
 
       run(gets)
       @had_error = false
+      @had_runtime_error = false
     end
   end
 
@@ -74,10 +75,10 @@ class Rox
     scanner = Scanner.new(source)
     tokens = scanner.scan_tokens
     parser = Parser.new(tokens)
-    expression = parser.parse
+    statements = parser.parse
 
     return if @had_error
 
-    @interpreter.interpret(expression)
+    @interpreter.interpret(statements)
   end
 end
