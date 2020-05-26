@@ -40,6 +40,7 @@ class Parser
 
   def statement
     return print_statement if match(:PRINT)
+    return Block.new(block) if match(:LEFT_BRACE)
 
     expression_statement
   end
@@ -64,8 +65,30 @@ class Parser
     Expression.new(expr)
   end
 
+  def block
+    statements = []
+
+    statements << declaration while !next_token_is(:RIGHT_BRACE) && !at_end
+    consume(:RIGHT_BRACE, "Expect '}' fter block.")
+    statements
+  end
+
   def expression
-    equality
+    assignment
+  end
+
+  def assignment
+    expr = equality
+
+    if match(:EQUAL)
+      equals = previous
+      value = assignment
+      return Assign.new(expr.name, value) if expr.is_a? Variable
+
+      raise error_with(equals, 'Invalid assignment target.')
+    end
+
+    expr
   end
 
   def equality

@@ -3,6 +3,20 @@
 class Expr
 end
 
+# Responsible for Assign expression
+class Assign < Expr
+  attr_accessor :name, :value
+
+  def initialize(name, value)
+    @name = name
+    @value = value
+  end
+
+  def accept(visitor)
+    visitor.visit_assign_expr(self)
+  end
+end
+
 # Responsible for Binary expression
 class Binary < Expr
   attr_accessor :left, :operator, :right

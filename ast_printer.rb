@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Pretty print parsed tree
+# Pretty print parsed tree for the basic expression classes.
 class AstPrinter
   class << self
     def print(expr)

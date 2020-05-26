@@ -3,6 +3,19 @@
 class Stmt
 end
 
+# Responsible for Block expression
+class Block < Stmt
+  attr_accessor :statements
+
+  def initialize(statements)
+    @statements = statements
+  end
+
+  def accept(visitor)
+    visitor.visit_block_stmt(self)
+  end
+end
+
 # Responsible for Expression expression
 class Expression < Stmt
   attr_accessor :expression
@@ -42,3 +55,4 @@ class Var < Stmt
     visitor.visit_var_stmt(self)
   end
 end
+

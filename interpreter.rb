@@ -91,6 +91,18 @@ class Interpreter
     @environment.define(stmt.name.lexeme, value)
   end
 
+  def visit_block_stmt(stmt)
+    execute_block(stmt.statements, Environment.new(@environment))
+    nil
+  end
+
+  def visit_assign_expr(expr)
+    value = evaluate(expr.value)
+
+    @environment.assign(expr.name, value)
+    value
+  end
+
   def visit_variable_expr(expr)
     @environment.get(expr.name)
   end
@@ -103,6 +115,14 @@ class Interpreter
 
   def execute(stmt)
     stmt.accept(self)
+  end
+
+  def execute_block(statements, environment)
+    previous_environment = @environment
+    @environment = environment
+    statements.each { |statement| execute(statement) }
+  ensure
+    @environment = previous_environment
   end
 
   def stringify(object)
