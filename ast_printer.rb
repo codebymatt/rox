@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# This class could be expanded further
 
 # Pretty print parsed tree for the basic expression classes.
 class AstPrinter

@@ -79,6 +79,31 @@ class Interpreter
     end
   end
 
+  def visit_expression_stmt(stmt)
+    evaluate(stmt.expression)
+    nil
+  end
+
+  def visit_if_statement(stmt)
+    if truthy?(evaluate(stmt.condition))
+      execute(stmt.then_branch)
+    elsif !stmt.else_branch.nil?
+      execute(stmt.else_branch)
+    end
+  end
+
+  def visit_logical_expression(expr)
+    left = evaluate(expr.left)
+
+    if expr.operator.type == :OR
+      return left if truthy?(left)
+    else
+      return left unless truthy?(left)
+    end
+
+    evalue(expr.right)
+  end
+
   def visit_print_stmt(stmt)
     value = evaluate(stmt.expression)
     puts stringify(value)
@@ -89,6 +114,11 @@ class Interpreter
     value = stmt.initializer.nil? ? nil : evaluate(stmt.initializer)
 
     @environment.define(stmt.name.lexeme, value)
+  end
+
+  def visit_while_stmt(stmt)
+    execute(stmt.body) while truthy?(evaluate(stmt.condition))
+    nil
   end
 
   def visit_block_stmt(stmt)

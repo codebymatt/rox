@@ -22,8 +22,10 @@ class GenerateAST
     [
       'Assign   : name, value',
       'Binary   : left, operator, right',
+      'If       : condition, then_branch, else_branch',
       'Grouping : expression',
       'Literal  : value',
+      'Logical  : left, operator, right',
       'Unary    : operator, right',
       'Variable : name'
     ]
@@ -34,7 +36,8 @@ class GenerateAST
       'Block      : statements',
       'Expression : expression',
       'Print      : expression',
-      'Var        : name, initializer'
+      'Var        : name, initializer',
+      'While      : condition, body'
     ]
   end
 

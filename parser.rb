@@ -39,16 +39,63 @@ class Parser
   end
 
   def statement
+    return for_statement if match(:FOR)
+    return if_statement if match(:IF)
     return print_statement if match(:PRINT)
+    return while_statement if match(:WHILE)
     return Block.new(block) if match(:LEFT_BRACE)
 
     expression_statement
+  end
+
+  def for_statement
+    consume(:LEFT_PAREN, "Expect '(' after for.")
+
+    initializer = if match(:SEMICOLON)
+                    nil
+                  elsif match(:VAR)
+                    var_declaration
+                  else
+                    expression_statement
+                  end
+
+    condition = next_token_is(:SEMICOLON) ? nil : expression
+
+    increment = next_token_is(:RIGHT_PAREN) ? nil : expression
+    consume(:RIGHT_PAREN, "Expect ')' after for clauses.")
+    body = statement
+
+    body = Block.new([body, Expression.new(increment)]) unless increment.nil?
+    condition = Literal.new(true) if condition.nil?
+
+    body = While.new(condition, body)
+    body = Block.new([initializer, body]) unless initializer.nil?
+    body
+  end
+
+  def if_statement
+    consume(:LEFT_PAREN, "Expect '(' after 'if'.")
+    condition = expression
+    consume(:RIGH_PAREN, "Expect ')' after if confition.")
+
+    then_branch = statement
+    else_branch = match(:ELSE) ? statement : nil
+    Stmt.new(condition, then_branch, else_branch)
   end
 
   def print_statement
     value = expression
     consume(:SEMICOLON, "Expect ';' after value.")
     Print.new(value)
+  end
+
+  def while_statement
+    consume(:LEFT_PAREN, "Expect '(' after 'while'.")
+    condition = expression
+    consume(:RIGHT_PAREN, "Expect ')' after condition.")
+    body = statement
+
+    While.new(condition, body)
   end
 
   def var_declaration
@@ -69,7 +116,7 @@ class Parser
     statements = []
 
     statements << declaration while !next_token_is(:RIGHT_BRACE) && !at_end
-    consume(:RIGHT_BRACE, "Expect '}' fter block.")
+    consume(:RIGHT_BRACE, "Expect '}' after block.")
     statements
   end
 
@@ -78,14 +125,37 @@ class Parser
   end
 
   def assignment
-    expr = equality
-
+    expr = or_expression
     if match(:EQUAL)
       equals = previous
       value = assignment
       return Assign.new(expr.name, value) if expr.is_a? Variable
 
       raise error_with(equals, 'Invalid assignment target.')
+    end
+
+    expr
+  end
+
+  def or_expression
+    expr = and_expression
+
+    while match(:OR)
+      operator = previous
+      right = and_expression
+      expr = Logical.new(expr, operator, right)
+    end
+
+    expr
+  end
+
+  def and_expression
+    expr = equality
+
+    while match(:AND)
+      operator = previous
+      right = equality
+      expr = Logical.new(expr, operator, right)
     end
 
     expr
@@ -107,6 +177,7 @@ class Parser
     expr = addition
 
     while match(:GREATER, :GREATER_EQUAL, :LESS, :LESS_EQUAL)
+      puts 'HITTING'
       operator = previous
       right = addition
       expr = Binary.new(expr, operator, right)

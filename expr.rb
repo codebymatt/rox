@@ -32,6 +32,21 @@ class Binary < Expr
   end
 end
 
+# Responsible for If expression
+class If < Expr
+  attr_accessor :condition, :then_branch, :else_branch
+
+  def initialize(condition, then_branch, else_branch)
+    @condition = condition
+    @then_branch = then_branch
+    @else_branch = else_branch
+  end
+
+  def accept(visitor)
+    visitor.visit_if_expr(self)
+  end
+end
+
 # Responsible for Grouping expression
 class Grouping < Expr
   attr_accessor :expression
@@ -55,6 +70,21 @@ class Literal < Expr
 
   def accept(visitor)
     visitor.visit_literal_expr(self)
+  end
+end
+
+# Responsible for Logical expression
+class Logical < Expr
+  attr_accessor :left, :operator, :right
+
+  def initialize(left, operator, right)
+    @left = left
+    @operator = operator
+    @right = right
+  end
+
+  def accept(visitor)
+    visitor.visit_logical_expr(self)
   end
 end
 
@@ -84,3 +114,4 @@ class Variable < Expr
     visitor.visit_variable_expr(self)
   end
 end
+

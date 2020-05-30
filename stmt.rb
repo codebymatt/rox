@@ -56,3 +56,17 @@ class Var < Stmt
   end
 end
 
+# Responsible for While expression
+class While < Stmt
+  attr_accessor :condition, :body
+
+  def initialize(condition, body)
+    @condition = condition
+    @body = body
+  end
+
+  def accept(visitor)
+    visitor.visit_while_stmt(self)
+  end
+end
+

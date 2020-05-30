@@ -61,7 +61,7 @@ class Scanner
       add_single_token(next_char_is('=') ? :GREATER_EQUAL : :EQUAL)
     when '/'
       if next_char_is('/')
-        advance_current while peek != '\n' && !at_end
+        advance_current while peek != "\n" && !at_end
       else
         add_single_token(:SLASH)
       end
