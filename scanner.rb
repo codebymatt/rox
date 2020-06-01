@@ -56,9 +56,9 @@ class Scanner
     when '='
       add_single_token(next_char_is('=') ? :EQUAL_EQUAL : :EQUAL)
     when '<'
-      add_single_token(next_char_is('=') ? :LESS_EQUAL : :EQUAL)
+      add_single_token(next_char_is('=') ? :LESS_EQUAL : :LESS)
     when '>'
-      add_single_token(next_char_is('=') ? :GREATER_EQUAL : :EQUAL)
+      add_single_token(next_char_is('=') ? :GREATER_EQUAL : :GREATER)
     when '/'
       if next_char_is('/')
         advance_current while peek != "\n" && !at_end

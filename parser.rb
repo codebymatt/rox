@@ -177,7 +177,6 @@ class Parser
     expr = addition
 
     while match(:GREATER, :GREATER_EQUAL, :LESS, :LESS_EQUAL)
-      puts 'HITTING'
       operator = previous
       right = addition
       expr = Binary.new(expr, operator, right)

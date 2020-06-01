@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # Holds all available token types for scanning.
+# Not used in code, but useful as reference for symbols.
+# Maybe should be in Markdown as documentation?
 module TokenType
   def types
     [
@@ -10,7 +12,7 @@ module TokenType
 
       # One/two character tokens.
       :BANG, :BANG_EQUAL, :EQUAL, :EQUAL_EQUAL,
-      :GREATER, :GREATER_EQUAL, :LESs, :LESS_EQUAL,
+      :GREATER, :GREATER_EQUAL, :LESS, :LESS_EQUAL,
 
       # Literals.
       :IDENTIFIER, :STRING, :NUMBER,
