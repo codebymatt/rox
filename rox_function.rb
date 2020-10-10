@@ -5,14 +5,15 @@ require './return_error.rb'
 
 # Handle Rox function implementation.
 class RoxFunction
-  attr_reader :declaration
+  attr_reader :declaration, :closure
 
-  def initialize(declaration)
+  def initialize(declaration, closure)
+    @closure = closure
     @declaration = declaration
   end
 
   def call(interpreter, arguments)
-    environment = Environment.new(interpreter.globals)
+    environment = Environment.new(closure)
 
     arguments.each_with_index do |_val, index|
       definition = @declaration.params[index].lexeme

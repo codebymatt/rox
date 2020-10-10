@@ -140,7 +140,7 @@ class Interpreter
   end
 
   def visit_function_stmt(stmt)
-    function = RoxFunction.new(stmt)
+    function = RoxFunction.new(stmt, environment)
     @environment.define(stmt.name.lexeme, function)
     nil
   end
