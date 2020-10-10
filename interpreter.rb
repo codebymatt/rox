@@ -1,13 +1,35 @@
 # frozen_string_literal: true
 
 require './environment.rb'
+require './return_error.rb'
 require './rox.rb'
+require './rox_function.rb'
 require './runtime_error.rb'
 
 # Interprets the value of syntax leaf nodes.
 class Interpreter
+  attr_reader :globals
+
   def initialize
-    @environment = Environment.new
+    @globals = Environment.new
+    @environment = globals
+
+    @globals.define(
+      'clock',
+      Class.new do
+        def self.arity
+          0
+        end
+
+        def self.call
+          Time.now.utc.to_f
+        end
+
+        def self.to_string
+          '<native fn>'
+        end
+      end
+    )
   end
 
   def interpret(statements)
@@ -79,20 +101,7 @@ class Interpreter
     end
   end
 
-  def visit_expression_stmt(stmt)
-    evaluate(stmt.expression)
-    nil
-  end
-
-  def visit_if_statement(stmt)
-    if truthy?(evaluate(stmt.condition))
-      execute(stmt.then_branch)
-    elsif !stmt.else_branch.nil?
-      execute(stmt.else_branch)
-    end
-  end
-
-  def visit_logical_expression(expr)
+  def visit_logical_expr(expr)
     left = evaluate(expr.left)
 
     if expr.operator.type == :OR
@@ -101,13 +110,59 @@ class Interpreter
       return left unless truthy?(left)
     end
 
-    evalue(expr.right)
+    evaluate(expr.right)
+  end
+
+  def visit_call_expr(expr)
+    callee = evaluate(expr.callee)
+
+    arguments = expr.arguments.map { |arg| evaluate(arg) }
+
+    unless callee.respond_to?(:call)
+      raise RuntimeError.new(expr.paren, 'Can only call functions and classes.')
+    end
+
+    function = callee
+
+    if arguments.length != function.arity
+      raise RuntimeError.new(
+        expr.paren,
+        "Expected #{function.arity} arguments but got #{arguments.length}."
+      )
+    end
+
+    function.call(self, arguments)
+  end
+
+  def visit_expression_stmt(stmt)
+    evaluate(stmt.expression)
+    nil
+  end
+
+  def visit_function_stmt(stmt)
+    function = RoxFunction.new(stmt)
+    @environment.define(stmt.name.lexeme, function)
+    nil
+  end
+
+  def visit_if_stmt(stmt)
+    if truthy?(evaluate(stmt.condition))
+      execute(stmt.then_branch)
+    elsif !stmt.else_branch.nil?
+      execute(stmt.else_branch)
+    end
   end
 
   def visit_print_stmt(stmt)
     value = evaluate(stmt.expression)
     puts stringify(value)
     nil
+  end
+
+  def visit_return_stmt(stmt)
+    value = stmt.value.nil? ? nil : evaluate(stmt.value)
+
+    raise ReturnError.new(value, nil)
   end
 
   def visit_var_stmt(stmt)
@@ -137,6 +192,14 @@ class Interpreter
     @environment.get(expr.name)
   end
 
+  def execute_block(statements, environment)
+    previous_environment = @environment
+    @environment = environment
+    statements.each { |statement| execute(statement) }
+  ensure
+    @environment = previous_environment
+  end
+
   private
 
   def evaluate(expr)
@@ -145,14 +208,6 @@ class Interpreter
 
   def execute(stmt)
     stmt.accept(self)
-  end
-
-  def execute_block(statements, environment)
-    previous_environment = @environment
-    @environment = environment
-    statements.each { |statement| execute(statement) }
-  ensure
-    @environment = previous_environment
   end
 
   def stringify(object)

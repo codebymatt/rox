@@ -30,6 +30,7 @@ class Parser
   private
 
   def declaration
+    return function('function') if match(:FUN)
     return var_declaration if match(:VAR)
 
     statement
@@ -42,6 +43,7 @@ class Parser
     return for_statement if match(:FOR)
     return if_statement if match(:IF)
     return print_statement if match(:PRINT)
+    return return_statement if match(:RETURN)
     return while_statement if match(:WHILE)
     return Block.new(block) if match(:LEFT_BRACE)
 
@@ -60,11 +62,12 @@ class Parser
                   end
 
     condition = next_token_is(:SEMICOLON) ? nil : expression
+    consume(:SEMICOLON, "Expect ';' after loop condition.")
 
     increment = next_token_is(:RIGHT_PAREN) ? nil : expression
     consume(:RIGHT_PAREN, "Expect ')' after for clauses.")
-    body = statement
 
+    body = statement
     body = Block.new([body, Expression.new(increment)]) unless increment.nil?
     condition = Literal.new(true) if condition.nil?
 
@@ -76,17 +79,25 @@ class Parser
   def if_statement
     consume(:LEFT_PAREN, "Expect '(' after 'if'.")
     condition = expression
-    consume(:RIGH_PAREN, "Expect ')' after if confition.")
+    consume(:RIGHT_PAREN, "Expect ')' after if condition.")
 
     then_branch = statement
     else_branch = match(:ELSE) ? statement : nil
-    Stmt.new(condition, then_branch, else_branch)
+    If.new(condition, then_branch, else_branch)
   end
 
   def print_statement
     value = expression
     consume(:SEMICOLON, "Expect ';' after value.")
     Print.new(value)
+  end
+
+  def return_statement
+    keyword = previous
+    value = match(:SEMICOLON) ? nil : expression
+
+    consume(:SEMICOLON, "Expect ';' after value.")
+    Return.new(keyword, value)
   end
 
   def while_statement
@@ -110,6 +121,28 @@ class Parser
     expr = expression
     consume(:SEMICOLON, "Expect ';' after value.")
     Expression.new(expr)
+  end
+
+  def function(kind)
+    name = consume(:IDENTIFIER, "Expect #{kind} name.")
+    consume(:LEFT_PAREN, "Expect '(' after #{kind} name.")
+    parameters = []
+
+    unless next_token_is(:RIGHT_PAREN)
+      loop do
+        if parameters.length >= 255
+          error_with(peek_next_token, 'Cannot have more than 255 parameters.')
+        end
+
+        parameters << consume(:IDENTIFIER, 'Expect parameter name.')
+        break unless match(:COMMA)
+      end
+    end
+
+    consume(:RIGHT_PAREN, "Expect ')' after parameters.")
+    consume(:LEFT_BRACE, "Expect '{' before #{kind} body.")
+    body = block
+    Function.new(name, parameters, body)
   end
 
   def block
@@ -216,7 +249,37 @@ class Parser
       return Unary.new(operator, right)
     end
 
-    primary
+    call
+  end
+
+  def call
+    expr = primary
+
+    loop do
+      break unless match(:LEFT_PAREN)
+
+      expr = finish_call(expr)
+    end
+
+    expr
+  end
+
+  def finish_call(callee)
+    arguments = []
+    unless next_token_is(:RIGHT_PAREN)
+      loop do
+        if arguments.length > 255
+          error_with(peek_next_token, 'Cannot have more than 255 arguments')
+        end
+
+        arguments << expression
+        break unless match(:COMMA)
+      end
+    end
+
+    paren_location = consume(:RIGHT_PAREN, "Expect ')' after arguments")
+
+    Call.new(callee, paren_location, arguments)
   end
 
   def primary

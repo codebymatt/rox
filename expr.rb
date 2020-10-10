@@ -32,18 +32,18 @@ class Binary < Expr
   end
 end
 
-# Responsible for If expression
-class If < Expr
-  attr_accessor :condition, :then_branch, :else_branch
+# Responsible for Call expression
+class Call < Expr
+  attr_accessor :callee, :paren, :arguments
 
-  def initialize(condition, then_branch, else_branch)
-    @condition = condition
-    @then_branch = then_branch
-    @else_branch = else_branch
+  def initialize(callee, paren, arguments)
+    @callee = callee
+    @paren = paren
+    @arguments = arguments
   end
 
   def accept(visitor)
-    visitor.visit_if_expr(self)
+    visitor.visit_call_expr(self)
   end
 end
 
@@ -114,4 +114,3 @@ class Variable < Expr
     visitor.visit_variable_expr(self)
   end
 end
-

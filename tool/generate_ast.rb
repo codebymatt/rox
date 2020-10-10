@@ -9,7 +9,7 @@ class GenerateAST
 
   def run
     if @args.length != 1
-      puts 'Usage: ./generate_ast<output_directory>'
+      puts 'Usage: ./generate_ast <output_directory>'
       exit(64)
     end
 
@@ -22,7 +22,7 @@ class GenerateAST
     [
       'Assign   : name, value',
       'Binary   : left, operator, right',
-      'If       : condition, then_branch, else_branch',
+      'Call     : callee, paren, arguments',
       'Grouping : expression',
       'Literal  : value',
       'Logical  : left, operator, right',
@@ -35,7 +35,10 @@ class GenerateAST
     [
       'Block      : statements',
       'Expression : expression',
+      'If         : condition, then_branch, else_branch',
+      'Function   : name, params, body',
       'Print      : expression',
+      'Return     : keyword, value',
       'Var        : name, initializer',
       'While      : condition, body'
     ]

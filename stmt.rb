@@ -29,6 +29,36 @@ class Expression < Stmt
   end
 end
 
+# Responsible for If expression
+class If < Stmt
+  attr_accessor :condition, :then_branch, :else_branch
+
+  def initialize(condition, then_branch, else_branch)
+    @condition = condition
+    @then_branch = then_branch
+    @else_branch = else_branch
+  end
+
+  def accept(visitor)
+    visitor.visit_if_stmt(self)
+  end
+end
+
+# Responsible for Function expression
+class Function < Stmt
+  attr_accessor :name, :params, :body
+
+  def initialize(name, params, body)
+    @name = name
+    @params = params
+    @body = body
+  end
+
+  def accept(visitor)
+    visitor.visit_function_stmt(self)
+  end
+end
+
 # Responsible for Print expression
 class Print < Stmt
   attr_accessor :expression
@@ -39,6 +69,20 @@ class Print < Stmt
 
   def accept(visitor)
     visitor.visit_print_stmt(self)
+  end
+end
+
+# Responsible for Return expression
+class Return < Stmt
+  attr_accessor :keyword, :value
+
+  def initialize(keyword, value)
+    @keyword = keyword
+    @value = value
+  end
+
+  def accept(visitor)
+    visitor.visit_return_stmt(self)
   end
 end
 
