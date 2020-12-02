@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './rox.rb'
+
 # Handles variable resolution in between parsing and interpreting
 class Resolver
   attr_accessor :interpreter, :scopes
@@ -7,6 +9,11 @@ class Resolver
   def initialize(interpreter)
     @interpreter = interpreter
     @scopes = []
+    @current_function = :NONE
+  end
+
+  def resolve_statements(statements)
+    statements.each { |statement| resolve(statement) }
   end
 
   def visit_block_stmt(stmt)
@@ -19,11 +26,11 @@ class Resolver
     resolve(stmt.expression)
   end
 
-  def visit_function_stmt
+  def visit_function_stmt(stmt)
     declare(stmt.name)
     define(stmt.name)
 
-    resolve_function(stmt)
+    resolve_function(stmt, :FUNCTION)
   end
 
   def visit_if_stmt(stmt)
@@ -38,7 +45,11 @@ class Resolver
   end
 
   def visit_return_stmt(stmt)
-    resolve(stmt.value) if stmt.value.present?
+    if @current_function == :NONE
+      Rox.error(stmt.keyword.line_num, "Can't return from top-level code.")
+    end
+
+    resolve(stmt.value) unless stmt.value.nil?
   end
 
   def visit_var_stmt(stmt)
@@ -99,23 +110,23 @@ class Resolver
     scopes.push({})
   end
 
-  def resolve_statments(statements)
-    statements.each { resolve(statement) }
-  end
-
   def resolve(target)
     target.accept(self)
   end
 
-  def resolve_function(function)
+  def resolve_function(function, function_type)
+    enclosing_function = @current_function
+    @current_function = function_type
+
     begin_scope
     function.params.each do |param|
       declare(param)
       define(param)
     end
 
-    resolve(function.body)
+    resolve_statements(function.body)
     end_scope
+    @current_function = enclosing_function
   end
 
   def end_scope
@@ -126,13 +137,18 @@ class Resolver
     return if scopes.empty?
 
     scope = scopes.last
+
+    if scope.key?(name.lexeme)
+      Rox.error(name.line_num, 'Variable with this name is already in this scope')
+    end
+
     scope[name.lexeme] = false
   end
 
   def define(name)
     return if scopes.empty?
 
-    scopes.last[name.lexeme, true]
+    scopes.last[name.lexeme] = true
   end
 
   def resolve_local(expr, name)

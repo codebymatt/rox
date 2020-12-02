@@ -2,6 +2,8 @@
 
 # Keeps track of all variables declared.
 class Environment
+  attr_accessor :values
+
   def initialize(enclosing = nil)
     @values = {}
     @enclosing = enclosing
@@ -30,5 +32,20 @@ class Environment
 
   def define(name, value)
     @values[name] = value
+  end
+
+  def get_at(distance, name)
+    ancestor(distance).values[name]
+  end
+
+  def assign_at(distance, name, value)
+    ancestor(distance).values[name.lexeme] = value
+  end
+
+  def ancestor(distance)
+    environment = self
+    distance.times { |_n| environment = environment.enclosing }
+
+    environment
   end
 end

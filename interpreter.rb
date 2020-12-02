@@ -11,6 +11,7 @@ class Interpreter
   attr_reader :globals
 
   def initialize
+    @locals = {}
     @globals = Environment.new
     @environment = globals
 
@@ -140,7 +141,7 @@ class Interpreter
   end
 
   def visit_function_stmt(stmt)
-    function = RoxFunction.new(stmt, environment)
+    function = RoxFunction.new(stmt, @environment)
     @environment.define(stmt.name.lexeme, function)
     nil
   end
@@ -183,13 +184,27 @@ class Interpreter
 
   def visit_assign_expr(expr)
     value = evaluate(expr.value)
+    distance = @locals[expr]
 
-    @environment.assign(expr.name, value)
+    if !distance.nil?
+      @environment.assign_at(distance, expr.name, value)
+    else
+      @globals.assign(expr.name, value)
+    end
+
     value
   end
 
   def visit_variable_expr(expr)
-    @environment.get(expr.name)
+    look_up_variable(expr)
+  end
+
+  def look_up_variable(expr)
+    distance = @locals[expr]
+
+    return @environment.get_at(distance, expr.name) unless distance.nil?
+
+    @globals.get(expr.name)
   end
 
   def execute_block(statements, environment)
@@ -208,6 +223,10 @@ class Interpreter
 
   def execute(stmt)
     stmt.accept(self)
+  end
+
+  def resolve(expr, depth)
+    @locals[expr] = depth
   end
 
   def stringify(object)

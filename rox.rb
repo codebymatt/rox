@@ -3,11 +3,14 @@
 require './ast_printer.rb'
 require './interpreter.rb'
 require './parser.rb'
+require './resolver.rb'
 require './scanner.rb'
 
 # Entry point for the Rox interpreter.
 class Rox
   class << self
+    attr_accessor :had_error, :had_runtime_error
+
     def error(line, message)
       report(line, '', message)
     end
@@ -40,6 +43,14 @@ class Rox
   end
 
   private
+
+  def had_error?
+    @had_error || self.class.had_error
+  end
+
+  def had_runtime_error?
+    @had_runtime_error || self.class.had_runtime_error
+  end
 
   def main(args)
     if args.length > 1
@@ -77,7 +88,12 @@ class Rox
     parser = Parser.new(tokens)
     statements = parser.parse
 
-    return if @had_error
+    return if had_error?
+
+    resolver = Resolver.new(@interpreter)
+    resolver.resolve_statements(statements)
+
+    return if had_error?
 
     @interpreter.interpret(statements)
   end
