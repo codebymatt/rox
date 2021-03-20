@@ -136,6 +136,14 @@ class Interpreter
     function.call(self, arguments)
   end
 
+  def visit_get_expr(expr)
+    object = evaluate(expr.object)
+
+    return object.get(expr.name) if object.is_a? RoxClass
+
+    raise RuntimeError.new(expr.name, 'Only instances have properties.')
+  end
+
   def visit_expression_stmt(stmt)
     evaluate(stmt.expression)
     nil

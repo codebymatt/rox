@@ -82,6 +82,11 @@ class Resolver
     expr.arguments.each { |arg| resolve(arg) }
   end
 
+  def visit_get_expr(expr)
+    resolve(expr.object)
+    nil
+  end
+
   def visit_grouping_expr(expr)
     resolve(expr.expression)
   end

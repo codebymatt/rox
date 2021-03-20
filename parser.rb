@@ -268,9 +268,14 @@ class Parser
     expr = primary
 
     loop do
-      break unless match(:LEFT_PAREN)
-
-      expr = finish_call(expr)
+      if match(:LEFT_PAREN)
+        expr = finish_call(expr)
+      elsif match(:DOT)
+        name = consume(:IDENTIFIER, "Expect property name after '.'.")
+        expr = Get.new(expr, name)
+      else
+        break
+      end
     end
 
     expr
