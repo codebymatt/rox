@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require './environment.rb'
-require './return_error.rb'
+require './environment'
+require './return_error'
 
 # Handle Rox function implementation.
 class RoxFunction

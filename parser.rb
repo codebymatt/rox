@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require './expr.rb'
-require './stmt.rb'
-require './rox.rb'
+require './expr'
+require './stmt'
+require './rox'
 
 # Creates AST by recursive descent.
 class Parser
@@ -30,6 +30,7 @@ class Parser
   private
 
   def declaration
+    return class_declaration if match(:CLASS)
     return function('function') if match(:FUN)
     return var_declaration if match(:VAR)
 
@@ -37,6 +38,17 @@ class Parser
   rescue ParseError
     synchronize
     nil
+  end
+
+  def class_declaration
+    name = consume(:IDENTIFIER, 'Expect class name.')
+    consume(:LEFT_BRACE, "Expect '{' before class body.")
+
+    methods = []
+    methods << function('method') while !next_token_is(:RIGHT_BRACE) && !at_end
+
+    consume(:RIGHT_BRACE, "Expect '}' after class body.")
+    Klass.new(name, methods)
   end
 
   def statement

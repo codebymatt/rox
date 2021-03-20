@@ -34,6 +34,7 @@ class GenerateAST
   def statement_types
     [
       'Block      : statements',
+      'Klass      : name, methods',
       'Expression : expression',
       'If         : condition, then_branch, else_branch',
       'Function   : name, params, body',

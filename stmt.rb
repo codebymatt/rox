@@ -16,6 +16,20 @@ class Block < Stmt
   end
 end
 
+# Responsible for Klass expression
+class Klass < Stmt
+  attr_accessor :name, :methods
+
+  def initialize(name, methods)
+    @name = name
+    @methods = methods
+  end
+
+  def accept(visitor)
+    visitor.visit_klass_stmt(self)
+  end
+end
+
 # Responsible for Expression expression
 class Expression < Stmt
   attr_accessor :expression

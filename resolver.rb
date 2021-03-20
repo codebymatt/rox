@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require './rox.rb'
+require './rox'
+require './rox_class'
 
 # Handles variable resolution in between parsing and interpreting
 class Resolver
@@ -20,6 +21,13 @@ class Resolver
     begin_scope
     resolve_statments(stmt.statements)
     end_scope
+  end
+
+  def visit_klass_stmt(stmt)
+    declare(stmt.name)
+    define(stmt.name)
+
+    nil
   end
 
   def visit_expr_stmt(stmt)
@@ -91,8 +99,8 @@ class Resolver
     resolve(expr.right)
   end
 
-  def visit_var_expr(expr)
-    if scopes.empty? && !scopes.last[expr.name.lexeme]
+  def visit_variable_expr(expr)
+    if !scopes.empty? && !scopes.last[expr.name.lexeme]
       Rox.error(expr.name, "Can't read local initializer in its own initializer.")
     end
 

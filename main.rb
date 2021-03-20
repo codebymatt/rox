@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require './rox.rb'
+require './rox'
 Rox.new(ARGV)

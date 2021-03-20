@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require './ast_printer.rb'
-require './interpreter.rb'
-require './parser.rb'
-require './resolver.rb'
-require './scanner.rb'
+require './ast_printer'
+require './interpreter'
+require './parser'
+require './resolver'
+require './scanner'
 
 # Entry point for the Rox interpreter.
 class Rox

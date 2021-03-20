@@ -114,3 +114,4 @@ class Variable < Expr
     visitor.visit_variable_expr(self)
   end
 end
+

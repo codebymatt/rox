@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require './environment.rb'
-require './return_error.rb'
-require './rox.rb'
-require './rox_function.rb'
-require './runtime_error.rb'
+require './environment'
+require './return_error'
+require './rox'
+require './rox_class'
+require './rox_function'
+require './runtime_error'
 
 # Interprets the value of syntax leaf nodes.
 class Interpreter
@@ -174,12 +175,17 @@ class Interpreter
 
   def visit_while_stmt(stmt)
     execute(stmt.body) while truthy?(evaluate(stmt.condition))
-    nil
   end
 
   def visit_block_stmt(stmt)
     execute_block(stmt.statements, Environment.new(@environment))
     nil
+  end
+
+  def visit_klass_stmt(stmt)
+    @environment.define(stmt.name.lexeme, nil)
+    klass = RoxClass.new(stmt.name.lexeme, [])
+    @environment.assign(stmt.name, klass)
   end
 
   def visit_assign_expr(expr)
