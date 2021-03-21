@@ -4,10 +4,15 @@ require './rox_instance'
 
 # Holds the implementation for Rox's classes.
 class RoxClass
-  attr_accessor :name
+  attr_reader :name, :methods
 
-  def initialize(name, _methods = [])
+  def initialize(name, methods = {})
     @name = name
+    @methods = methods
+  end
+
+  def find_method(name)
+    @methods[name]
   end
 
   def to_s

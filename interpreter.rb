@@ -115,6 +115,16 @@ class Interpreter
     evaluate(expr.right)
   end
 
+  def visit_set_expr(expr)
+    object = evaluate(expr.object)
+    raise RuntimeError.new(expr.name, 'Only instances have fields.') unless object.is_a? RoxInstance
+
+    value = evaluate(expr.value)
+    object.set(name, value)
+
+    value
+  end
+
   def visit_call_expr(expr)
     callee = evaluate(expr.callee)
 
@@ -138,8 +148,7 @@ class Interpreter
 
   def visit_get_expr(expr)
     object = evaluate(expr.object)
-
-    return object.get(expr.name) if object.is_a? RoxClass
+    return object.get(expr.name) if object.is_a? RoxInstance
 
     raise RuntimeError.new(expr.name, 'Only instances have properties.')
   end
@@ -192,7 +201,13 @@ class Interpreter
 
   def visit_klass_stmt(stmt)
     @environment.define(stmt.name.lexeme, nil)
-    klass = RoxClass.new(stmt.name.lexeme, [])
+
+    methods = stmt.methods.map do |method|
+      function = RoxFunction.new(method, @environment)
+      [method.name.lexeme, function]
+    end.to_h
+
+    klass = RoxClass.new(stmt.name.lexeme, methods)
     @environment.assign(stmt.name, klass)
   end
 

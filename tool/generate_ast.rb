@@ -27,6 +27,7 @@ class GenerateAST
       'Grouping : expression',
       'Literal  : value',
       'Logical  : left, operator, right',
+      'Set      : object, name, value',
       'Unary    : operator, right',
       'Variable : name'
     ]

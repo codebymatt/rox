@@ -174,7 +174,12 @@ class Parser
     if match(:EQUAL)
       equals = previous
       value = assignment
-      return Assign.new(expr.name, value) if expr.is_a? Variable
+      case expr
+      when Variable
+        return Assign.new(expr.name, value)
+      when Get
+        return Set.new(get.object, get.name, value)
+      end
 
       raise error_with(equals, 'Invalid assignment target.')
     end

@@ -27,10 +27,12 @@ class Resolver
     declare(stmt.name)
     define(stmt.name)
 
+    stmt.methods.each { |method| resolve_function(method, :METHOD) }
+
     nil
   end
 
-  def visit_expr_stmt(stmt)
+  def visit_expression_stmt(stmt)
     resolve(stmt.expression)
   end
 
@@ -98,6 +100,11 @@ class Resolver
   def visit_logical_expr(expr)
     resolve(expr.left)
     resolve(expr.right)
+  end
+
+  def visit_set_expr(expr)
+    resolve(expr.value)
+    resolve(expr.object)
   end
 
   def visit_unary_expr(expr)

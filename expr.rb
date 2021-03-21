@@ -47,6 +47,20 @@ class Call < Expr
   end
 end
 
+# Responsible for Get expression
+class Get < Expr
+  attr_accessor :object, :name
+
+  def initialize(object, name)
+    @object = object
+    @name = name
+  end
+
+  def accept(visitor)
+    visitor.visit_get_expr(self)
+  end
+end
+
 # Responsible for Grouping expression
 class Grouping < Expr
   attr_accessor :expression
@@ -85,6 +99,21 @@ class Logical < Expr
 
   def accept(visitor)
     visitor.visit_logical_expr(self)
+  end
+end
+
+# Responsible for Set expression
+class Set < Expr
+  attr_accessor :object, :name, :value
+
+  def initialize(object, name, value)
+    @object = object
+    @name = name
+    @value = value
+  end
+
+  def accept(visitor)
+    visitor.visit_set_expr(self)
   end
 end
 
