@@ -117,6 +117,19 @@ class Set < Expr
   end
 end
 
+# Responsible for This expression
+class This < Expr
+  attr_accessor :keyword
+
+  def initialize(keyword)
+    @keyword = keyword
+  end
+
+  def accept(visitor)
+    visitor.visit_this_expr(self)
+  end
+end
+
 # Responsible for Unary expression
 class Unary < Expr
   attr_accessor :operator, :right

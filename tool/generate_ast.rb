@@ -28,6 +28,7 @@ class GenerateAST
       'Literal  : value',
       'Logical  : left, operator, right',
       'Set      : object, name, value',
+      'This     : keyword',
       'Unary    : operator, right',
       'Variable : name'
     ]

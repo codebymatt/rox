@@ -27,7 +27,11 @@ class Resolver
     declare(stmt.name)
     define(stmt.name)
 
+    begin_scope
+    scopes.last['this'] = true
+
     stmt.methods.each { |method| resolve_function(method, :METHOD) }
+    end_scope
 
     nil
   end
@@ -107,6 +111,10 @@ class Resolver
     resolve(expr.object)
   end
 
+  def visit_this_expr(expr)
+    resolve_local(expr, expr.keyword)
+  end
+
   def visit_unary_expr(expr)
     resolve(expr.right)
   end
@@ -172,7 +180,7 @@ class Resolver
   end
 
   def resolve_local(expr, name)
-    scopes.reverse.each_with_index do |scope, index|
+    scopes.to_enum.with_index.reverse_each do |scope, index|
       unless scope[name.lexeme].nil?
         interpreter.resolve(expr, scopes.length - index - 1)
         break

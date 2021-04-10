@@ -178,7 +178,7 @@ class Parser
       when Variable
         return Assign.new(expr.name, value)
       when Get
-        return Set.new(get.object, get.name, value)
+        return Set.new(expr.object, expr.name, value)
       end
 
       raise error_with(equals, 'Invalid assignment target.')
@@ -309,6 +309,7 @@ class Parser
     return Literal.new(true) if match(:TRUE)
     return Literal.new(nil) if match(:NIL)
     return Literal.new(previous.literal) if match(:NUMBER, :STRING)
+    return This.new(previous) if match(:THIS)
     return Variable.new(previous) if match(:IDENTIFIER)
 
     if match(:LEFT_PAREN)

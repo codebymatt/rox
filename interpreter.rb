@@ -120,9 +120,14 @@ class Interpreter
     raise RuntimeError.new(expr.name, 'Only instances have fields.') unless object.is_a? RoxInstance
 
     value = evaluate(expr.value)
-    object.set(name, value)
+    # object.set(expr, value)
+    object.set(expr.name, value)
 
     value
+  end
+
+  def visit_this_expr(expr)
+    look_up_variable(expr, expr.keyword)
   end
 
   def visit_call_expr(expr)
@@ -225,15 +230,14 @@ class Interpreter
   end
 
   def visit_variable_expr(expr)
-    look_up_variable(expr)
+    look_up_variable(expr, expr.name)
   end
 
-  def look_up_variable(expr)
+  def look_up_variable(expr, name)
     distance = @locals[expr]
+    return @environment.get_at(distance, name.lexeme) unless distance.nil?
 
-    return @environment.get_at(distance, expr.name) unless distance.nil?
-
-    @globals.get(expr.name)
+    @globals.get(name)
   end
 
   def execute_block(statements, environment)
@@ -244,6 +248,10 @@ class Interpreter
     @environment = previous_environment
   end
 
+  def resolve(expr, depth)
+    @locals[expr] = depth
+  end
+
   private
 
   def evaluate(expr)
@@ -252,10 +260,6 @@ class Interpreter
 
   def execute(stmt)
     stmt.accept(self)
-  end
-
-  def resolve(expr, depth)
-    @locals[expr] = depth
   end
 
   def stringify(object)

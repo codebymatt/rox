@@ -2,6 +2,8 @@
 
 # Holds the implementation for Rox Class instances.
 class RoxInstance
+  attr_accessor :fields
+
   def initialize(klass)
     @klass = klass
     @fields = {}
@@ -11,13 +13,13 @@ class RoxInstance
     return @fields[name.lexeme] if @fields.keys.include?(name.lexeme)
 
     method = @klass.find_method(name.lexeme)
-    return method unless method.nil?
+    return method.bind(self) unless method.nil?
 
     raise RuntimeError.new(name, "Undefined property #{name.lexeme}.")
   end
 
   def set(name, value)
-    @fields[name] = value
+    @fields[name.lexeme] = value
   end
 
   def to_s

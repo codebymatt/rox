@@ -12,6 +12,12 @@ class RoxFunction
     @declaration = declaration
   end
 
+  def bind(instance)
+    environment = Environment.new(@closure)
+    environment.define('this', instance)
+    RoxFunction.new(@declaration, environment)
+  end
+
   def call(interpreter, arguments)
     environment = Environment.new(closure)
 

@@ -2,7 +2,7 @@
 
 # Keeps track of all variables declared.
 class Environment
-  attr_accessor :values
+  attr_accessor :values, :enclosing
 
   def initialize(enclosing = nil)
     @values = {}
