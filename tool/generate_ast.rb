@@ -28,6 +28,7 @@ class GenerateAST
       'Literal  : value',
       'Logical  : left, operator, right',
       'Set      : object, name, value',
+      'Super    : keyword, method',
       'This     : keyword',
       'Unary    : operator, right',
       'Variable : name'
@@ -37,7 +38,7 @@ class GenerateAST
   def statement_types
     [
       'Block      : statements',
-      'Klass      : name, methods',
+      'Klass      : name, superclass, methods',
       'Expression : expression',
       'If         : condition, then_branch, else_branch',
       'Function   : name, params, body',

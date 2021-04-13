@@ -42,13 +42,20 @@ class Parser
 
   def class_declaration
     name = consume(:IDENTIFIER, 'Expect class name.')
+
+    superclass = nil
+    if match(:LESS)
+      consume(:IDENTIFIER, 'Expect superclass name.')
+      superclass = Variable.new(previous)
+    end
+
     consume(:LEFT_BRACE, "Expect '{' before class body.")
 
     methods = []
     methods << function('method') while !next_token_is(:RIGHT_BRACE) && !at_end
 
     consume(:RIGHT_BRACE, "Expect '}' after class body.")
-    Klass.new(name, methods)
+    Klass.new(name, superclass, methods)
   end
 
   def statement
@@ -309,6 +316,15 @@ class Parser
     return Literal.new(true) if match(:TRUE)
     return Literal.new(nil) if match(:NIL)
     return Literal.new(previous.literal) if match(:NUMBER, :STRING)
+
+    if match(:SUPER)
+      keyword = previous
+      consume(:DOT, "Expect '.' after 'super'.")
+
+      method = consume(:IDENTIFIER, 'Expect superclass method name.')
+      return Super.new(keyword, method)
+    end
+
     return This.new(previous) if match(:THIS)
     return Variable.new(previous) if match(:IDENTIFIER)
 

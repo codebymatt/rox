@@ -18,10 +18,11 @@ end
 
 # Responsible for Klass expression
 class Klass < Stmt
-  attr_accessor :name, :methods
+  attr_accessor :name, :superclass, :methods
 
-  def initialize(name, methods)
+  def initialize(name, superclass, methods)
     @name = name
+    @superclass = superclass
     @methods = methods
   end
 

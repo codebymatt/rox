@@ -126,6 +126,20 @@ class Interpreter
     value
   end
 
+  def visit_super_expr(expr)
+    distance = @locals[expr]
+    superclass = @environment.get_at(distance, 'super')
+    object = @environment.get_at(distance - 1, 'this')
+
+    method = superclass.find_method(expr.method.lexeme)
+
+    if method.nil?
+      raise RuntimeError.new(expr.method, "Undefined property '#{expr.method.lexeme}'.")
+    end
+
+    method.bind(object)
+  end
+
   def visit_this_expr(expr)
     look_up_variable(expr, expr.keyword)
   end
@@ -164,7 +178,7 @@ class Interpreter
   end
 
   def visit_function_stmt(stmt)
-    function = RoxFunction.new(stmt, @environment)
+    function = RoxFunction.new(stmt, @environment, false)
     @environment.define(stmt.name.lexeme, function)
     nil
   end
@@ -205,14 +219,31 @@ class Interpreter
   end
 
   def visit_klass_stmt(stmt)
+    superclass = nil
+
+    unless stmt.superclass.nil?
+      superclass = evaluate(stmt.superclass)
+
+      unless superclass.is_a? RoxClass
+        raise RuntimeError.new(stmt.superclass.name, 'Superclass must be a class.')
+      end
+    end
+
     @environment.define(stmt.name.lexeme, nil)
 
+    unless stmt.superclass.nil?
+      @environment = Environment.new(@environment)
+      @environment.define('super', superclass)
+    end
+
     methods = stmt.methods.map do |method|
-      function = RoxFunction.new(method, @environment)
+      function = RoxFunction.new(method, @environment, method.name.lexeme == 'init')
       [method.name.lexeme, function]
     end.to_h
 
-    klass = RoxClass.new(stmt.name.lexeme, methods)
+    klass = RoxClass.new(stmt.name.lexeme, superclass, methods)
+
+    @environment = @environment.enclosing unless stmt.superclass.nil?
     @environment.assign(stmt.name, klass)
   end
 

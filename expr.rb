@@ -117,6 +117,20 @@ class Set < Expr
   end
 end
 
+# Responsible for Super expression
+class Super < Expr
+  attr_accessor :keyword, :method
+
+  def initialize(keyword, method)
+    @keyword = keyword
+    @method = method
+  end
+
+  def accept(visitor)
+    visitor.visit_super_expr(self)
+  end
+end
+
 # Responsible for This expression
 class This < Expr
   attr_accessor :keyword

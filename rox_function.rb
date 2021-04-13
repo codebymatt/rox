@@ -5,17 +5,18 @@ require './return_error'
 
 # Handle Rox function implementation.
 class RoxFunction
-  attr_reader :declaration, :closure
+  attr_reader :declaration, :closure, :is_initializer
 
-  def initialize(declaration, closure)
+  def initialize(declaration, closure, is_initializer)
     @closure = closure
     @declaration = declaration
+    @is_initializer = is_initializer
   end
 
   def bind(instance)
     environment = Environment.new(@closure)
     environment.define('this', instance)
-    RoxFunction.new(@declaration, environment)
+    RoxFunction.new(@declaration, environment, @is_initializer)
   end
 
   def call(interpreter, arguments)
@@ -29,8 +30,12 @@ class RoxFunction
     begin
       interpreter.execute_block(@declaration.body, environment)
     rescue ReturnError => e
+      return @closure.get_at(0, 'this') if @is_initializer
+
       return e.value
     end
+
+    return @closure.get_at(0, 'this') if @is_initializer
 
     nil
   end
