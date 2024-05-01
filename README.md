@@ -2,31 +2,15 @@
 
 A Ruby interpreter for the Lox programming language.
 
-I've decided to follow along with the first section of Bob Nystrom's book
-[Crafting Interpreters](https://craftinginterpreters.com) and
-build an interpreter for the Lox programming language. This should serve two
-purposes - providing a scratch for the ever nagging itch I have to understand
-programming languages better, and stretch my Ruby skills beyond the usual Rails
-application I write daily.
+I'm working through Bob Nystrom's [Crafting Interpreters](https://craftinginterpreters.com) as a
+foray into the practical workings of a programming language. At the time of writing this I work on a
+team that develops and maintains [GROQ](https://github.com/sanity-io/GROQ), a query language for
+JSON. While I've contributed here and there, I'm not as fluent as I'd like to be with what's
+under the hood of any non-trivial language implementation.
 
-Bob has written his implementation in Java, which is convenient (for me at least) since I'll
-have to 'translate' it to Ruby, meaning I'll have to really understand what's happening
-behind the scenes.
+I'm planning on covering the first section of the book with Ruby, a language I love but rarely use
+in my day-to-day, and the second half in Go, my current daily driver.
 
-Depending on how well that goes, I may continue on and write a VM for Lox (probably in C, and
-depending how that goes, maybe another low level language).
-
-**Update [April 15th 2021]**
-
-It took longer than expected ( a lot of life happened between the start of this project and now),
-but Rox is complete!
-
-It was a very educational experience, and a very interesting one. I've gained a tremendous amount of
-respect for those who design and build languages, particulalry those who aren't on a large team or
-have the backing of a large organisation.
-
-I'm not continuing with the final part of Crafting Interpreters for now (the VM in C); I'm going to
-write some code of my own and hopefully apply some of the lessons I've learnt here. If you're
-interested in programming languages I *highly* reccommend giving Crafting Interpreters a read (and
-a follow along!), it's excellently written, humorous, and enjoyable. I don't think a lot of books
-about interpreters can say that.
+(This is actually my second attempt at the first section of the book, the git history of this repo
+reaches further back than I care to admit. The first time I raced through the material with too much
+of a focus on _finishing it_, instead of _learning_. I am at least a little wiser now.)
